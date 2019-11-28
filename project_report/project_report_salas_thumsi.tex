@@ -1,0 +1,220 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%     Declarations (skip to Begin Document, line 88, for parts you fill in)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt]{article}
+
+\usepackage{geometry}  % Lots of layout options.  See http://en.wikibooks.org/wiki/LaTeX/Page_Layout
+\geometry{letterpaper}  % ... or a4paper or a5paper or ...
+\usepackage{fullpage}  % somewhat standardized smaller margins (around an inch)
+\usepackage{setspace}  % control line spacing in latex documents
+\usepackage[parfill]{parskip}  % Activate to begin paragraphs with an empty line rather than an indent
+
+\usepackage{amsmath,amssymb}  % latex math
+\usepackage{empheq} % http://www.ctan.org/pkg/empheq
+\usepackage{bm,upgreek}  % allows you to write bold greek letters (upper & lower case)
+
+% allows strikethroughs in math via \cancel{math text goes here}
+\usepackage{cancel}
+
+% for typsetting algorithm pseudocode see http://en.wikibooks.org/wiki/LaTeX/Algorithms_and_Pseudocode
+\usepackage{algorithmic,algorithm}
+
+\usepackage{graphicx}  % inclusion of graphics; see: http://en.wikibooks.org/wiki/LaTeX/Importing_Graphics
+% allow easy inclusion of .tif, .png graphics
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+% \usepackage{subfigure}  % allows subfigures in figure
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{xspace}
+\newcommand{\latex}{\LaTeX\xspace}
+
+\usepackage{xcolor}  % http://en.wikibooks.org/wiki/LaTeX/Colors
+
+\long\def\todo#1{{\color{orange}{\bf TODO: #1}}}
+
+\long\def\ans#1{{\color{blue}{\em #1}}}
+\long\def\ansnem#1{{\color{blue}#1}}
+\long\def\boldred#1{{\color{red}{\bf #1}}}
+\long\def\boldred#1{\textcolor{red}{\bf #1}}
+\long\def\boldblue#1{\textcolor{blue}{\bf #1}}
+
+% Useful package for syntax highlighting of specific code (such as python) -- see below
+\usepackage{listings}  % http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+\usepackage{textcomp}
+
+%%% The following lines set up using the listings package
+\renewcommand{\lstlistlistingname}{Code Listings}
+\renewcommand{\lstlistingname}{Code Listing}
+
+%%% Specific for python listings
+\definecolor{gray}{gray}{0.5}
+\definecolor{green}{rgb}{0,0.5,0}
+
+\lstnewenvironment{python}[1][]{
+\lstset{
+language=python,
+basicstyle=\footnotesize,  % could also use this -- a little larger \ttfamily\small\setstretch{1},
+stringstyle=\color{red},
+showstringspaces=false,
+alsoletter={1234567890},
+otherkeywords={\ , \}, \{},
+keywordstyle=\color{blue},
+emph={access,and,break,class,continue,def,del,elif ,else,%
+except,exec,finally,for,from,global,if,import,in,i s,%
+lambda,not,or,pass,print,raise,return,try,while},
+emphstyle=\color{black}\bfseries,
+emph={[2]True, False, None, self},
+emphstyle=[2]\color{green},
+emph={[3]from, import, as},
+emphstyle=[3]\color{blue},
+upquote=true,
+morecomment=[s]{"""}{"""},
+commentstyle=\color{gray}\slshape,
+emph={[4]1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+emphstyle=[4]\color{blue},
+literate=*{:}{{\textcolor{blue}:}}{1}%
+{=}{{\textcolor{blue}=}}{1}%
+{-}{{\textcolor{blue}-}}{1}%
+{+}{{\textcolor{blue}+}}{1}%
+{*}{{\textcolor{blue}*}}{1}%
+{!}{{\textcolor{blue}!}}{1}%
+{(}{{\textcolor{blue}(}}{1}%
+{)}{{\textcolor{blue})}}{1}%
+{[}{{\textcolor{blue}[}}{1}%
+{]}{{\textcolor{blue}]}}{1}%
+{<}{{\textcolor{blue}<}}{1}%
+{>}{{\textcolor{blue}>}}{1},%
+%framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{blue},#1
+framexleftmargin=1mm, framextopmargin=1mm, frame=single,#1
+}}{}
+%%% End python code listing definitions
+
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\cov}{cov}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%     Begin Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{center}
+    {\Large {\bf ISTA 421/521 -- Homework 5}} \\
+    \boldred{Due: Monday, December 2, 5pm} \\
+    18 pts total for Undergrads, 28 pts total for Grads\\
+
+\end{center}
+
+\begin{flushright}
+Shraddha Satish Thumsi %% Fill in your name here
+
+Graduate %% select which you are!
+\end{flushright}
+
+\vspace{1cm}
+{\Large {\bf Instructions}}
+
+In this assignment, exercises 5 and 6 require you to write python scripts; the details for those scripts, along with their .py name are described in the exercises.  All of the exercises in this homework require written derivations, short answers, and/or plots, so you will also submit a .pdf of your written answers.  (You can use \latex or any other system (including handwritten; plots, of course, must be program-generated) as long as the final version is in PDF. Handwritten pdf submissions MUST BE WRITTEN CLEARLY or we will not grade them!)
+
+NOTE: Problems 2 and 3 are required for Graduate students only; Undergraduates may complete these exercises for extra credit equal to the point value.
+
+(FCMA refers to the course text: Rogers and Girolami (2016), {\em A First Course in Machine Learning}, second edition.  For general notes on using \latex to typeset math, see: \\{\tt http://en.wikibooks.org/wiki/LaTeX/Mathematics})
+\vspace{.5cm}
+
+
+
+%%%%%%%%%%%%%%%%
+%%%     Problems
+%%%%%%%%%%%%%%%%
+
+\newpage
+\begin{itemize}
+
+%%%     Problem 1
+\item[1.]  [5 points]  %\boldred{Required only for Graduates}
+Adapted from {\bf Exercise 5.3} of FCMA p.202:
+
+Compute the maximum likelihood estimates of $\boldsymbol{\mu}_c$ and $\boldsymbol{\Sigma}_c$ for class $c$ of a Bayesian classifier with Gaussian class-conditionals and a set of $N_c$ objects belonging to class $c$, $\mathbf{x}_1$, ..., $\mathbf{x}_{N_c}$.
+
+{\bf Solution.} %$<$Solution goes here$>$
+
+
+
+
+%%%     Problem 2
+\item[2.]  [6 points] \boldred{Required only for Graduates}
+Adapted from {\bf Exercise 5.4} of FCMA p.204:
+
+Compute the maximum likelihood estimates of $q_{mc}$ for class $c$ of a Bayesian classifier with multinomial class-conditionals and a set of $N_c$, $M$-dimensional objects belonging to class $c$: $\mathbf{x}_1, ..., \mathbf{x}_{N_c}$.
+
+HINT: You will need to enforce the constraint that the sum of the M $q_{mc}$ parameters sum to $1$!
+
+{\bf Solution.} %$<$Solution goes here$>$
+
+
+
+
+%%%     Problem 3
+\item[3.]  [4 points]  \boldred{Required only for Graduates}
+Adapted from {\bf Exercise 5.5} of FCMA p.204:
+
+For a Bayesian classifier with multinomial class-conditionals with $M$-dimensional parameters $\mathbf{q}_c$, compute the posterior Dirichlet for class $c$ when the prior over $\mathbf{q}_c$ is a Dirichlet with constant parameter $\alpha$ and the observations belonging to class $c$ are the $N_c$ observations $\mathbf{x}_1, ..., \mathbf{x}_{N_c}$.
+
+{\bf Solution.} %$<$Solution goes here$>$
+
+
+
+
+%\begin{figure}[ht]
+%  \centering
+%  \includegraphics[width=4cm]{figs/sample_pi}
+%  \caption{\ans{Sampling model of circle with radius $r$ inscribed in square with sides $2r$.}}
+%  \label{fig:sample_pi}
+%\end{figure}
+
+
+
+%%%     Problem 4
+\item[4.]  [3 points]
+For a support vector machine, if we remove one of the support vectors from the training set, does the size of the maximum margin decrease, stay the same, or increase for that dataset?  Why?  Also justify your answer by providing a simple dataset (no more than 2-dimensions) in which you identify the support vectors, draw the location of the maximum margin hyperplane, remove one of the support vectors, and draw the location of the resulting maximum margin hyperplane.  Drawing this by hand is sufficient.
+
+{\bf Solution.}
+
+
+
+
+%%%     Problem 5
+\item[5.]  [4 points]
+In this exercise you will use the python script, {\tt knn.py}, which contains code to plot the decision boundary for a k-nearest neighbors classifier.  Two data sources are also provided in the {\tt data} directory: {\tt knn\_binary\_data.csv} and {\tt knn\_three\_class\_data.csv}.
+
+In {\tt knn.py}, the function {\tt knn} is to compute the k-nearest neighbors classification for a point {\tt p}, but the functionality is not currently implemented.  You \emph{can} run the code in its unimplemented state, but the decision boundary will not display (everything will be considered the same class).  You must implement the core of the classifier.  Use a Euclidean distance measure for determining the neighbors (note: you don't need to take the square root! The sum of squares is sufficient).  You do not need to implement any fancy indexing -- you can simply search for the k nearest points by searching over the pairwise distance of the input ({\tt p}) to all of the "training" inputs ({\tt x}).  Use the maximum class frequency as the class decision rule.  You do not need to worry about doing anything special for breaking ties.  The numpy function {\tt argsort} and the python {\tt collections.Counter} may be of use, but are not required.  Submit the {\tt knn.py} file with your implementation.  In your written solution, run the code on both of the provided data sources ( {\tt knn\_binary\_data.csv} and {\tt knn\_three\_class\_data.csv}.), and for each, plot the decision boundary for $k = \{1, 5, 10, 59\}$.  Include informative captions and describe any patterns you see in the decision boundaries as k changes.
+
+A set of unit tests are provided to test your output classification for the mesh of inputs used to generate the decision-boundary plots.
+
+{\bf Solution.}
+
+
+
+
+%%%     Problem 6
+\item[6.]  [6 points]
+Using your implementation of your KNN classifier in exercise 5, write a script to perform 10-fold cross-validation in a search for the best choice of $K$.  You will implement your script in the stub python file {\tt knn-cv.py}.
+
+Remember to randomly partition your data at the start of the CV procedure. For this relatively small data set (especially for the 3-class case), the randomization of the 10-fold partitioning will lead to a fair amount of variance, so repeat this overall procedure 10 times, averaging the accuracy results (i.e,: have an outer loop that runs 10-fold CV 10 times, averaging accuracy per $k$ across the 10-fold CV results).
+
+Run your script on both data sources: {\tt knn\_binary\_data.csv} and {\tt knn\_three\_class\_data.csv}. For {\tt knn\_binary\_data.csv}, search for $K$ in the range $1 \leq K \leq 60$, and for {\tt knn\_three\_class\_data.csv}, search for $K$ in the range $1 \leq K \leq 80$.
+
+In your written solution, provide a plot of $K$ (x-axis) against classification error (i.e., the ratio of points misclassified to total, on the y-axis) for each data set, and report the \emph{best} $k$ for each.
+
+There are no unit tests for this exercise.
+
+{\bf Solution.}
+
+
+
+\end{itemize}
+
+\end{document}
