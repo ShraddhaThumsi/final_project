@@ -1,0 +1,241 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%     Declarations (skip to Begin Document, line 88, for parts you fill in)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt]{article}
+
+\usepackage{geometry}  % Lots of layout options.  See http://en.wikibooks.org/wiki/LaTeX/Page_Layout
+\geometry{letterpaper}  % ... or a4paper or a5paper or ...
+\usepackage{fullpage}  % somewhat standardized smaller margins (around an inch)
+\usepackage{setspace}  % control line spacing in latex documents
+\usepackage[parfill]{parskip}  % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{amsmath,amssymb}  % latex math
+\usepackage{empheq} % http://www.ctan.org/pkg/empheq
+\usepackage{bm,upgreek}  % allows you to write bold greek letters (upper & lower case)
+
+\usepackage{url}
+
+% allows strikethroughs in math via \cancel{math text goes here}
+\usepackage{cancel}
+
+% for typsetting algorithm pseudocode see http://en.wikibooks.org/wiki/LaTeX/Algorithms_and_Pseudocode
+\usepackage{algorithmic,algorithm}
+
+\usepackage{graphicx}  % inclusion of graphics; see: http://en.wikibooks.org/wiki/LaTeX/Importing_Graphics
+% allow easy inclusion of .tif, .png graphics
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%\usepackage{subfigure}  % allows subfigures in figure
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{xspace}
+\newcommand{\latex}{\LaTeX\xspace}
+
+\usepackage{color}  % http://en.wikibooks.org/wiki/LaTeX/Colors
+
+\long\def\ans#1{{\color{blue}{\em #1}}}
+\long\def\ansnem#1{{\color{blue}#1}}
+\long\def\boldred#1{{\color{red}{\bf #1}}}
+\long\def\boldred#1{\textcolor{red}{\bf #1}}
+\long\def\boldblue#1{\textcolor{blue}{\bf #1}}
+\long\def\todo#1{\textcolor{red}{\bf TODO: #1}}
+
+% Useful package for syntax highlighting of specific code (such as python) -- see below
+\usepackage{listings}  % http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+\usepackage{textcomp}
+
+%%% The following lines set up using the listings package
+\renewcommand{\lstlistlistingname}{Code Listings}
+\renewcommand{\lstlistingname}{Code Listing}
+
+%%% Specific for python listings
+\definecolor{gray}{gray}{0.5}
+\definecolor{green}{rgb}{0,0.5,0}
+
+\lstnewenvironment{python}[1][]{
+\lstset{
+language=python,
+basicstyle=\footnotesize,  % could also use this -- a little larger \ttfamily\small\setstretch{1},
+stringstyle=\color{red},
+showstringspaces=false,
+alsoletter={1234567890},
+otherkeywords={\ , \}, \{},
+keywordstyle=\color{blue},
+emph={access,and,break,class,continue,def,del,elif ,else,%
+except,exec,finally,for,from,global,if,import,in,i s,%
+lambda,not,or,pass,print,raise,return,try,while},
+emphstyle=\color{black}\bfseries,
+emph={[2]True, False, None, self},
+emphstyle=[2]\color{green},
+emph={[3]from, import, as},
+emphstyle=[3]\color{blue},
+upquote=true,
+morecomment=[s]{"""}{"""},
+commentstyle=\color{gray}\slshape,
+emph={[4]1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+emphstyle=[4]\color{blue},
+literate=*{:}{{\textcolor{blue}:}}{1}%
+{=}{{\textcolor{blue}=}}{1}%
+{-}{{\textcolor{blue}-}}{1}%
+{+}{{\textcolor{blue}+}}{1}%
+{*}{{\textcolor{blue}*}}{1}%
+{!}{{\textcolor{blue}!}}{1}%
+{(}{{\textcolor{blue}(}}{1}%
+{)}{{\textcolor{blue})}}{1}%
+{[}{{\textcolor{blue}[}}{1}%
+{]}{{\textcolor{blue}]}}{1}%
+{<}{{\textcolor{blue}<}}{1}%
+{>}{{\textcolor{blue}>}}{1},%
+%framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{blue},#1
+framexleftmargin=1mm, framextopmargin=1mm, frame=single,#1
+}}{}
+%%% End python code listing definitions
+
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\cov}{cov}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%     Begin Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{Comparison of the performances of XGBoost, Adaboost, LightGBM, Catboost, Decision Tree and Gaussian Process classifiers in an inter-sentential relation extraction setting}
+\author{Shraddha Satish Thumsi, Liliana Salas}
+\maketitle
+
+
+
+%%%%%%%%%%%%%%%%
+%%%     Problems
+%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+In Natural Language Processing (NLP), the problem of associating a context to an event has been studied in detail, especially in the realm of cancer research. Much of the literature found in this space involve the context and event mentions lying in the same sentence \cite{relation_extraction_review}. However, a non-trivial problem of extracting the relationship between events and contexts in an inter-sentential setting could be more common \cite{inter_sentential_RE}.
+Reach is an NLP processor that extracts the events and contexts in the paper and the Machine Learning component in Reach classifies these to be associated as a context or not, i.e., it predicts a true/false value for a given pair of event-context mentions using the linguistic features in the text. Efforts in exploring a suitable classifier for this task have been made by the BioContext team in the University of Arizona \cite{context_assoc_paper}. This project report furthers this effort by exploring more classifiers. We also provide an analysis of the time taken by each algorithm compared to the F1 score that it yields.
+
+\section{Dataset description}
+In this project, we use a .csv file wherein the event-context pairs have numerical and boolean values for linguistic features in the text in which they appeared. The "ground truth" for these pairs were the annotations provided to us by domain experts in 2016. Each datapoint is characterized by three strings: paperID (PMCID of the open-access paper), event ID (the sequence of words depicting a BioEvent in Reach) and context ID (the name of a biological entity that may be marked as context, i.e. a BioTextBoundMention).
+As we mentioned above, we are dealing with an inter-sentential problem, i.e. the event and context mentions may lie many sentences apart in the text of the paper. The feature values for each pair are values of linguistic features such as sentence distance, dependency distance, whether the context mention is the closest one to the event and so on. The features for which we extract values were used in \cite{context_assoc_paper}. The data set has 5092 datapoints and each datapoint has 999 non-identifying and non-label features. The labels in the data set are of boolean value marking whether or not the BioTextBoundMention is a true context of the event mention, and this is what our classifiers will predict.
+
+
+
+\section {Methodology used for comparison of models}
+Based on the description of the dataset, we chose the pairs from a given paper to be the testing set while the remainder of 21 papers were used as a training set in the cross validation \cite{context_assoc_paper}.
+The number of event-context pairs were found to differ widely across papers, therefore we used micro-averaging to compare the predicted values to the "ground truth".
+
+
+
+\section{Overview of classifiers}
+
+\subsection{XGBoost}
+"XGBoost is the portmanteau of "extreme gradient boosting". It is an upgrade to the gradient boosting algorithm focusing on computational speed and model performance, including new features like regularization (both L1 and L2). The model supports features of the library Scikit-learn and also libraries in R. Being advantageous for computational speed, its highlights are that it can be used for parallel programming and can be cache-optimized. It is "sparse-aware", making it easy to handle sparse or missing data. This algorithm goes by lots of different names such as gradient boosting, multiple additive regression trees, stochastic gradient boosting or gradient boosting machines" \cite{gradient_boosting_primer}.
+"Boosting in general is an ensemble model that corrects the errors made by other models in future predictions. Models are added sequentially until no further improvements can be made.  Boosting algorithms are useful when there is limited training data, limited training time and little expertise in parameter tuning" \cite{advantages_boosting_algos}.
+In this analysis, we used the default settings of the hyperparameters for XGBoost \cite{xgboost_docs}.
+
+\subsection{Adaboost}
+Adaboost is also an ensemble algorithm. "The output of the other learning algorithms ('weak learners') is combined into a weighted sum that represents the final output of the boosted classifier. AdaBoost is adaptive in the sense that subsequent weak learners are tweaked in favor of those instances misclassified by previous classifiers. AdaBoost is sensitive to noisy data and outliers. In some problems it can be less susceptible to the overfitting problem than other learning algorithms. The individual learners can be weak, but as long as the performance of each one is slightly better than random guessing, the final model can be proven to converge to a strong learner" \cite{adaboost_wiki}.
+It is a part of the *sklearn.ensemble* package. We specified the parameter $n_{estimators}$ (no. of estimators) to be 32, but all others were default parameters \cite{adaboost_defaults}. We chose this value to stay close to the number of estimators in the Decision Tree classifier, i.e. square root of the number of numerical features in our dataset (999).
+
+
+\subsection{LightGBM}
+"LightGBM is a fast, distributed, high performance gradient boosting (GBT, GBDT, GBRT, GBM or MART) framework based on decision tree algorithms used for ranking, classification and many other machine learning tasks \cite{LightGBM_microsoft}". It was developed by Microsoft. As for hyperparameters, we set the "objective" hyperparameter to "binary" since this is a binary classification problem. Additionally, we set the $randomstate$ to 5. $randomstate$ sets the seed for the algorithm \cite{light_gbm_parameters}.
+
+
+\subsection{Catboost}
+"Catboost is a high-performing gradient boosting algorithm for decision trees. CatBoost has the flexibility of giving indices of categorical columns so that it can be encoded as one-hot encoding using $one-hot-max-size$ (Use one-hot encoding for all features with number of different values less than or equal to the given parameter value).
+If you don’t pass any anything in the $catfeatures$ argument, CatBoost will treat all the columns as numerical variables" \cite{advantages_boosting_algos}. We used the following hyperparameter settings: $iterations=50, depth=3, learningrate=0.1, lossfunction=Logloss$.
+
+
+
+
+\subsection{Decision Tree}
+"Decision tree learning is a supervised machine learning technique for inducing a decision tree from training data. It is a predictive model which is a mapping from observations about an item to conclusions about its target value. In the tree structures, leaves represent classifications (also referred to as labels), nonleaf nodes are features, and branches represent conjunctions of features that lead to the classifications" \cite{decision_tree}.
+We used 32 estimators and a depth of 8 for the decision tree. All other hyperparameters were the default value as specified by sklearn.
+
+
+
+
+\subsection{Gaussian process}
+
+"Gaussian Processes (GP) are a generic supervised learning method designed to solve regression and probabilistic classification problems. GaussianProcessClassifier places a GP prior on a latent function , which is then squashed through a link function to obtain the probabilistic classification. The latent function is a so-called "nuisance" function, whose values are not observed and are not relevant by themselves. Its purpose is to allow a convenient formulation of the model, and  is removed (integrated out) during prediction. GaussianProcessClassifier implements the logistic link function, for which the integral cannot be computed analytically but is easily approximated in the binary case" \cite{gaussian_process_class}.
+We used the default settings of the hyperparameters provided in the documentation.
+
+\section{Performance of models}
+Each of the six chosen algorithms were compared on Precision, Recall, F1 and Accuracy scores. The individual scores obtained by the models are plotted in Fig 1.
+\begin{figure}[H]
+    \centering
+    \frame{\includegraphics[width=.8\textwidth]{../graphs_and_scores/scores_per_classifier.png}}
+
+    \label{fig:figure6}
+    \caption{Results from the Reach 2019 dataset that presented six competing classification methods for the BioContext event-context classification experiment}
+\end{figure}
+
+
+As an additional analysis, we compared the amount of time in minutes taken by each classifier to achieve the F1 score mentioned above. The time v/s F1 graph is presented in Fig 2.
+\begin{figure}[H]
+    \centering
+    \frame{\includegraphics[width=.8\textwidth]{../graphs_and_scores/f1_vs_time_in_mins.png}}
+    \caption{A comparison of the time-F1 tradeoff for each of the 6 classifiers}
+\end{figure}
+
+
+
+\section{Results}
+Over the 6 classifiers we compared, Catboost had the highest F1 (0.90). It took about 0.85 minutes to finish testing over all papers in the cross-validation loop. Gaussian Process classifier was the slowest and had the least F1 score (25 minutes and 0.625 respectively). Four out of the six classifiers finished the cross-validation loop in under a minute.
+
+
+\section{Acknowledgements}
+We want to thank Dr. Clayton Morrison for his support and guidance through the project, both in the scope of the project and in the finer details of it. A special thank you to Paul D Hein for providing us the starter code for the hyperparameters on some classifiers as well as some starter code for the scoring graph. The Sklearn package makes an AI practioner's life easier by providing examples, documentation and code for easy access. I also want to thank Liliana for having allowed me to walk with her through the code as well as the math involved in not only the project, but also the entire course. I have learned more from her than she might have from me.
+
+\begin{thebibliography}{999}
+  \bibitem{context_assoc_paper}
+    Noriega-Atala, E., Hein, P. D., Thumsi, S. S., Wong, Z., Wang, X., \& Morrison, C. T. (2018). Inter-sentence Relation Extraction for Associating Biological Context with Events in Biomedical Texts. arXiv preprint arXiv:1812.06199.
+
+  \bibitem{reach_paper}
+    Valenzuela-Escárcega, M. A., Babur, O., Hahn-Powell, G., Bell, D., Hicks, T., Noriega-Atala, E., \& Morrison, C. T. (2017). Large-scale automated reading with Reach discovers new cancer driving mechanisms. In \textit{Proceedings of the Sixth BioCreative Challenge Evaluation Workshop}. Bethesda (pp. 201-3).
+
+  \bibitem{cnn_text_classification}
+    Kim, Y. (2014). Convolutional neural networks for sentence classification. arXiv preprint arXiv:1408.5882.
+
+  \bibitem{relation_extraction_review}
+    N. Bach and S. Badaskar, “A review of relation extraction,” \textit{Literature review for Language and Statistics II}, 2007.
+
+  \bibitem{inter_sentential_RE}
+    K. Swampillai and M. Stevenson, “Extracting relations within and across sentences,” \textit{in Proceedings of Recent Advances in Natural Language Processing}, 2011.
+
+
+  \bibitem{gradient_boosting_primer}
+  \url{https://machinelearningmastery.com/gentle-introduction-xgboost-applied-machine-learning/}
+
+   \bibitem{advantages_boosting_algos}
+    \url{https://towardsdatascience.com/catboost-vs-light-gbm-vs-xgboost-5f93620723db}
+  \bibitem{xgboost_docs}
+  \url{https://xgboost.readthedocs.io/en/latest/parameter.html}
+
+  \bibitem{adaboost_wiki}
+  \url{https://en.wikipedia.org/wiki/AdaBoost}
+
+  \bibitem{adaboost_defaults}
+  \url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html}
+
+
+  \bibitem{LightGBM_microsoft}
+    Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., Liu, T. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. NIPS.
+
+    \bibitem{light_gbm_parameters}
+    \url{https://lightgbm.readthedocs.io/en/latest/Parameters.html}
+
+    \bibitem{decision_tree}
+    Tan, Lin. (2015). Code Comment Analysis for Improving Software Quality. The Art and Science of Analyzing Software Data. 493-517. 10.1016/B978-0-12-411519-4.00017-3.
+
+
+    \bibitem{gaussian_process_class}
+    \url{https://scikit-learn.org/stable/modules/gaussian_process.html}
+
+\end{thebibliography}
+\end{document}
+
+

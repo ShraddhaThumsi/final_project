@@ -1,0 +1,12 @@
+import paths_in_final_project as paths
+import utils.graph_maker_utils as grapher_utils
+import os
+PATH_TO_GRAPHS_AND_SCORES_DIR = paths.PATH_TO_GRAPHS_AND_SCORES
+PATH_TO_SCORES_GRAPH = os.path.join(PATH_TO_GRAPHS_AND_SCORES_DIR,"scores_per_classifier.png")
+PATH_TO_TIME_VS_F1_GRAPH = os.path.join(PATH_TO_GRAPHS_AND_SCORES_DIR,"f1_vs_time_in_mins.png")
+PATH_TO_SCORES_JSON = paths.PATH_TO_SCORES_JSON
+PATHS_TO_TIME_CONSUMPTION_JSON = paths.PATH_TO_TIME_CONSUMPTION_JSON
+score_per_classifier_dict = grapher_utils.read_classifier_dicts_from_json(PATH_TO_SCORES_JSON)
+time_per_classifier_dict = grapher_utils.read_classifier_dicts_from_json(PATHS_TO_TIME_CONSUMPTION_JSON)
+grapher_utils.plot_scores(score_per_classifier_dict, PATH_TO_SCORES_GRAPH)
+grapher_utils.plot_f1_vs_time(time_per_classifier_dict,score_per_classifier_dict,PATH_TO_TIME_VS_F1_GRAPH)
